@@ -3,7 +3,9 @@
 This repository contains the source code for the **MCP (Multi-Capability Provider) Server**, a powerful backend service designed to bridge **Puch AI** with external services like WhatsApp, web content fetching, and product searching. It acts as a tool hub, allowing the AI to perform complex tasks in the real world.
 
 ## Image Result
+### Output 1
 ![Output WhatsApp](output/1.jpg)
+### Output 2
 ![Output WhatsApp](output/2.jpg)
 
 
