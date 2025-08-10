@@ -4,3 +4,4 @@ readabilipy
 httpx
 pydantic
 python-dotenv
+openai
