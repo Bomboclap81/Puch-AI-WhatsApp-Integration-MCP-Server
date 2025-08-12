@@ -96,7 +96,7 @@ Follow these steps to get the MCP server running on your local machine.
     python main.py
     ```
 
-    The server should now be running at `http://127.0.0.1:8000`.
+    The server should now be running at `http://127.0.0.1:8085`.
 
 -----
 
@@ -165,7 +165,7 @@ Fetches and parses the textual content of a given URL. This is useful for summar
 **Example Request (`curl`):**
 
 ```bash
-curl -X POST http://127.0.0.1:8000/mcp/ \
+curl -X POST http://127.0.0.1:8085/mcp/ \
 -H "Authorization: Bearer YOUR_SECURE_BEARER_TOKEN" \
 -H "Content-Type: application/json" \
 -d '{
@@ -198,7 +198,7 @@ Searches Google Shopping for products based on a query, using the SerpApi servic
 **Example Request (`curl`):**
 
 ```bash
-curl -X POST http://127.0.0.1:8000/mcp/ \
+curl -X POST http://127.0.0.1:8085/mcp/ \
 -H "Authorization: Bearer YOUR_SECURE_BEARER_TOKEN" \
 -H "Content-Type: application/json" \
 -d '{
